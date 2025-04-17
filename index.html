@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Internal Part Number Finder</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    .card {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    .not-found {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Internal Part Number Finder</h1>
+  <input type="text" id="search" placeholder="Enter catalogue number or description..." />
+  <div id="results"></div>
+
+  <script>
+    let data = [];
+    fetch("part_data.json")
+      .then(res => res.json())
+      .then(json => {
+        data = json;
+        document.getElementById("search").addEventListener("input", function() {
+          const q = this.value.toLowerCase();
+          const results = data.filter(
+            item =>
+              item.catalogue_number.toLowerCase().includes(q) ||
+              item.description.toLowerCase().includes(q)
+          );
+          const resultDiv = document.getElementById("results");
+          resultDiv.innerHTML = "";
+          if (results.length === 0 && q) {
+            resultDiv.innerHTML = "<p class='not-found'>❌ No matching part found.</p>";
+          }
+          results.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <p><strong>Catalogue Number:</strong> ${item.catalogue_number}</p>
+              <p><strong>Internal Number:</strong> ${item.internal_number}</p>
+              <p><strong>Description:</strong> ${item.description}</p>
+              <p><strong>Manufacturer:</strong> ${item.manufacturer}</p>
+            `;
+            resultDiv.appendChild(card);
+          });
+        });
+      });
+  </script>
+</body>
+</html>
